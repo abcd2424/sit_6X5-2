@@ -7,7 +7,7 @@ st.set_page_config(page_title="자리 배치", layout="centered")
 
 st.title("🪑 교실 책상 자리 배치 프로그램")
 
-if "students" not in st.session_state or st.button("🔄 자리 초기화"):
+if "students" not in st.session_state:
     students = list(range(1, 33))
     random.shuffle(students)
     st.session_state.students = students
@@ -18,7 +18,8 @@ def get_seat_df(students):
     idx = 0
     for i in range(rows):
         for j in range(cols):
-            if i == rows - 1 and j in [2, 3]:  # 마지막 줄 중앙 2칸 비움
+            # 마지막 줄 6행(인덱스 5) 가운데 3열,4열 비움 (j=2,3)
+            if i == rows - 1 and j in [2, 3]:
                 continue
             data.append({
                 "번호": int(students[idx]),
@@ -26,7 +27,7 @@ def get_seat_df(students):
                 "열": j + 1
             })
             idx += 1
-    # 남은 2명을 6열 가운데(3,4열), 3행과 4행에 배치
+    # 남은 2명은 3행 3열, 4행 4열에 배치
     data.append({"번호": int(students[idx]), "행": 3, "열": 3})
     data.append({"번호": int(students[idx + 1]), "행": 4, "열": 4})
     return pd.DataFrame(data)
@@ -39,7 +40,6 @@ desk_width = 0.8
 desk_height = 0.8
 desk_color = "#ADD8E6"  # 연한 하늘색
 
-# 책상 그리기
 for _, row in df.iterrows():
     x = row["열"]
     y = row["행"]
@@ -53,14 +53,13 @@ for _, row in df.iterrows():
     )
     fig.add_annotation(
         x=x, y=y,
-        text=f"<b>{int(번호)}</b>",  # 확실히 정수로 변환
+        text=f"<b>{int(번호)}</b>",
         showarrow=False,
         font=dict(size=18, color="black"),
         xanchor="center",
         yanchor="middle"
     )
 
-# 칠판 추가 (앞쪽 - 1행 아래쪽)
 fig.add_shape(
     type="rect",
     x0=0.5, x1=5.5,
@@ -89,3 +88,10 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
+
+# 초기화 버튼을 화면 아래에 고정
+if st.button("🔄 자리 초기화"):
+    students = list(range(1, 33))
+    random.shuffle(students)
+    st.session_state.students = students
+    st.experimental_rerun()
