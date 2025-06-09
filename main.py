@@ -10,19 +10,18 @@ TOTAL_STUDENTS = 32
 def generate_seats(front_students, other_students):
     seats = [["" for _ in range(COLS)] for _ in range(ROWS + 1)]
 
-    # 앞줄 최대 6명 배치, 나머지는 뒤쪽 학생들과 합쳐서 배치
+    # 앞줄 학생 무작위 섞기
     front_row_seats = front_students[:COLS]
+    random.shuffle(front_row_seats)
     remaining_front = front_students[COLS:]
 
     # 뒤에 앉는 학생들 + 앞줄 초과 인원 합치기
     remaining_students = remaining_front + other_students
-
-    random.shuffle(front_row_seats)
     random.shuffle(remaining_students)
 
     idx_remaining = 0
 
-    # 앞줄 6자리 전부 채움
+    # 앞줄 6자리 전부 채움 (앞줄 학생 + 부족한 자리 뒤 학생으로 채움)
     for c in range(COLS):
         if c < len(front_row_seats):
             seats[0][c] = front_row_seats[c]
@@ -86,4 +85,3 @@ st.table(df_seats)
 
 if st.button("🔄 자리 초기화"):
     st.session_state.students = list(range(1, TOTAL_STUDENTS + 1))
-    # st.experimental_rerun() 함수는 버전 문제로 제외했습니다.
