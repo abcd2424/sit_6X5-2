@@ -39,6 +39,7 @@ desk_width = 0.8
 desk_height = 0.8
 desk_color = "#ADD8E6"  # 연한 하늘색
 
+# 책상 그리기
 for _, row in df.iterrows():
     x = row["열"]
     y = row["행"]
@@ -52,18 +53,36 @@ for _, row in df.iterrows():
     )
     fig.add_annotation(
         x=x, y=y,
-        text=f"<b>{번호}</b>",
+        text=f"<b>{int(번호)}</b>",  # 확실히 정수로 변환
         showarrow=False,
         font=dict(size=18, color="black"),
         xanchor="center",
         yanchor="middle"
     )
 
+# 칠판 추가 (앞쪽 - 1행 아래쪽)
+fig.add_shape(
+    type="rect",
+    x0=0.5, x1=5.5,
+    y0=0.1, y1=0.5,
+    line=dict(color="black", width=3),
+    fillcolor="#444444"
+)
+fig.add_annotation(
+    x=3,
+    y=0.3,
+    text="<b>칠판 (Board)</b>",
+    showarrow=False,
+    font=dict(size=20, color="white"),
+    xanchor="center",
+    yanchor="middle"
+)
+
 fig.update_layout(
-    xaxis=dict(range=[0.5, 5.5], title="열", showgrid=False),
-    yaxis=dict(range=[0.5, 6.5], title="행", showgrid=False),
+    xaxis=dict(range=[0.5, 5.5], title="열", showgrid=False, zeroline=False),
+    yaxis=dict(range=[0, 6.5], title="행", showgrid=False, zeroline=False),
     width=700,
-    height=600,
+    height=650,
     margin=dict(t=40, l=10, r=10, b=10),
     plot_bgcolor="white",
     showlegend=False
