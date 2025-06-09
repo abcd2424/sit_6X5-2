@@ -9,43 +9,50 @@ TOTAL_STUDENTS = 32
 
 def generate_seats(front_students, other_students):
     seats = [["" for _ in range(COLS)] for _ in range(ROWS + 1)]
-    
-    # 앞줄 자리 6칸, 학생이 없으면 빈칸으로 유지
+
+    # 앞줄 최대 6명 배치, 나머지는 뒤쪽 학생들과 합쳐서 배치
     front_row_seats = front_students[:COLS]
     remaining_front = front_students[COLS:]
-    
+
+    # 뒤에 앉는 학생들 + 앞줄 초과 인원 합치기
+    remaining_students = remaining_front + other_students
+
     random.shuffle(front_row_seats)
+    random.shuffle(remaining_students)
+
+    idx_remaining = 0
+
+    # 앞줄 6자리 전부 채움
     for c in range(COLS):
         if c < len(front_row_seats):
             seats[0][c] = front_row_seats[c]
         else:
-            seats[0][c] = ""  # 빈 자리
-    
-    # 초과된 앞줄 학생 + 나머지 학생 합치기
-    remaining_students = remaining_front + other_students
-    random.shuffle(remaining_students)
-    
-    idx = 0
-    # 2~5행 (인덱스 1~4)
+            if idx_remaining < len(remaining_students):
+                seats[0][c] = remaining_students[idx_remaining]
+                idx_remaining += 1
+            else:
+                seats[0][c] = ""
+
+    # 2~5행 자리 배치
     for r in range(1, ROWS):
         for c in range(COLS):
-            if idx >= len(remaining_students):
-                seats[r][c] = ""
+            if idx_remaining < len(remaining_students):
+                seats[r][c] = remaining_students[idx_remaining]
+                idx_remaining += 1
             else:
-                seats[r][c] = remaining_students[idx]
-                idx += 1
-    
+                seats[r][c] = ""
+
     # 6행 3,4열 자리 배치
     for pos in [2, 3]:
-        if idx < len(remaining_students):
-            seats[ROWS][pos] = remaining_students[idx]
-            idx += 1
+        if idx_remaining < len(remaining_students):
+            seats[ROWS][pos] = remaining_students[idx_remaining]
+            idx_remaining += 1
         else:
             seats[ROWS][pos] = ""
     # 6행 나머지는 빈칸
-    for pos in [0,1,4,5]:
+    for pos in [0, 1, 4, 5]:
         seats[ROWS][pos] = ""
-    
+
     return seats
 
 def seats_to_dataframe(seats):
@@ -60,7 +67,6 @@ if "students" not in st.session_state:
 st.write("앞에 앉고 싶은 친구들의 번호를 쉼표(,)로 구분해 입력하세요. 예: 1,3,5")
 front_input = st.text_input("앞줄 배치할 학생 번호 입력")
 
-# 입력 파싱
 front_students = []
 if front_input.strip():
     try:
@@ -80,4 +86,4 @@ st.table(df_seats)
 
 if st.button("🔄 자리 초기화"):
     st.session_state.students = list(range(1, TOTAL_STUDENTS + 1))
-    # st.experimental_rerun()는 버전 문제로 제외했습니다.
+    # st.experimental_rerun() 함수는 버전 문제로 제외했습니다.
