@@ -26,14 +26,13 @@ def get_seat_df(students):
                 "열": j + 1
             })
             idx += 1
-    # 마지막 2명 중앙 배치
-    data.append({"번호": int(students[idx]), "행": 1, "열": 2.5})
-    data.append({"번호": int(students[idx + 1]), "행": 1, "열": 3.5})
+    # 남은 2명을 6열 가운데(3,4열), 3행과 4행에 배치
+    data.append({"번호": int(students[idx]), "행": 3, "열": 3})
+    data.append({"번호": int(students[idx + 1]), "행": 4, "열": 4})
     return pd.DataFrame(data)
 
 df = get_seat_df(st.session_state.students)
 
-# 도형 그리기
 fig = go.Figure()
 
 desk_width = 0.8
@@ -53,7 +52,7 @@ for _, row in df.iterrows():
     )
     fig.add_annotation(
         x=x, y=y,
-        text=f"<b>{번호}</b>",  # 굵게 표시
+        text=f"<b>{번호}</b>",
         showarrow=False,
         font=dict(size=18, color="black"),
         xanchor="center",
