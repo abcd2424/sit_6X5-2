@@ -10,13 +10,16 @@ TOTAL_STUDENTS = 32
 def generate_seats(front_students, other_students):
     seats = [["" for _ in range(COLS)] for _ in range(ROWS + 1)]
     
-    # 앞줄 6자리 먼저 채우기
+    # 앞줄 자리 6칸, 학생이 없으면 빈칸으로 유지
     front_row_seats = front_students[:COLS]
     remaining_front = front_students[COLS:]
     
     random.shuffle(front_row_seats)
-    for c in range(len(front_row_seats)):
-        seats[0][c] = front_row_seats[c]
+    for c in range(COLS):
+        if c < len(front_row_seats):
+            seats[0][c] = front_row_seats[c]
+        else:
+            seats[0][c] = ""  # 빈 자리
     
     # 초과된 앞줄 학생 + 나머지 학생 합치기
     remaining_students = remaining_front + other_students
@@ -62,7 +65,7 @@ front_students = []
 if front_input.strip():
     try:
         front_students = [int(x.strip()) for x in front_input.split(",") if x.strip().isdigit()]
-    except Exception as e:
+    except Exception:
         st.error("번호를 정확히 숫자로 쉼표 구분해서 입력해주세요.")
 
 other_students = [s for s in st.session_state.students if s not in front_students]
@@ -77,5 +80,4 @@ st.table(df_seats)
 
 if st.button("🔄 자리 초기화"):
     st.session_state.students = list(range(1, TOTAL_STUDENTS + 1))
-    # 초기화 후 자동 갱신 기능을 넣고 싶으면 아래 코드 제거하고 직접 리로드 권장
-    # st.experimental_rerun() 함수는 버전 문제로 빼놓았습니다.
+    # st.experimental_rerun()는 버전 문제로 제외했습니다.
