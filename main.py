@@ -18,18 +18,19 @@ def get_seat_df(students):
     idx = 0
     for i in range(rows):
         for j in range(cols):
-            # 마지막 줄 6행(인덱스 5) 가운데 3열,4열 비움 (j=2,3)
+            # 마지막 행 (i==5) 3열,4열 비움
             if i == rows - 1 and j in [2, 3]:
                 continue
             data.append({
                 "번호": int(students[idx]),
-                "행": rows - i,
+                "행": i + 1,  # 세로 1부터 6까지 순서로 바꿈
                 "열": j + 1
             })
             idx += 1
-    # 남은 2명은 3행 3열, 4행 4열에 배치
-    data.append({"번호": int(students[idx]), "행": 3, "열": 3})
-    data.append({"번호": int(students[idx + 1]), "행": 4, "열": 4})
+
+    # 비운 자리(6행 3,4열) 대신 1행 3,4열에 31,32번 배치(원하는 위치 변경 가능)
+    data.append({"번호": int(students[idx]), "행": 1, "열": 3})
+    data.append({"번호": int(students[idx + 1]), "행": 1, "열": 4})
     return pd.DataFrame(data)
 
 df = get_seat_df(st.session_state.students)
@@ -60,16 +61,17 @@ for _, row in df.iterrows():
         yanchor="middle"
     )
 
+# 칠판을 맨 위로 올림 (행 0 ~ 0.4)
 fig.add_shape(
     type="rect",
     x0=0.5, x1=5.5,
-    y0=0.1, y1=0.5,
+    y0=6.6, y1=7.0,
     line=dict(color="black", width=3),
     fillcolor="#444444"
 )
 fig.add_annotation(
     x=3,
-    y=0.3,
+    y=6.8,
     text="<b>칠판 (Board)</b>",
     showarrow=False,
     font=dict(size=20, color="white"),
@@ -79,9 +81,9 @@ fig.add_annotation(
 
 fig.update_layout(
     xaxis=dict(range=[0.5, 5.5], title="열", showgrid=False, zeroline=False),
-    yaxis=dict(range=[0, 6.5], title="행", showgrid=False, zeroline=False),
+    yaxis=dict(range=[0, 7.2], title="행", showgrid=False, zeroline=False),
     width=700,
-    height=650,
+    height=700,
     margin=dict(t=40, l=10, r=10, b=10),
     plot_bgcolor="white",
     showlegend=False
@@ -89,7 +91,6 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# 초기화 버튼을 화면 아래에 고정
 if st.button("🔄 자리 초기화"):
     students = list(range(1, 33))
     random.shuffle(students)
